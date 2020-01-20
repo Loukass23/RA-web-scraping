@@ -1,0 +1,14 @@
+{
+  "name": "webscraping",
+  "version": "1.0.0",
+  "description": "hello-wenscraping",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "LucasD",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^2.0.0"
+  }
+}
