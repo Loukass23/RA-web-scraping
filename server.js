@@ -18,13 +18,18 @@ app.listen(port, () => {
     console.log(`Express server running on port ${port}`)
 });
 
-app.post('/events',
-    async (req, res) => {
-        const { countryCode, city } = req.body
-        const events = await scrapRA(`https://www.residentadvisor.net/events/${countryCode}/${city}`)
-        res.send(events)
+try {
+    app.post('/events',
+        async (req, res) => {
+            const { countryCode, city } = req.body
+            const events = await scrapRA(`https://www.residentadvisor.net/events/${countryCode}/${city}`)
+            res.send(events)
 
-    });
+        })
+}
+catch (error) {
+    console.log("error", error);
+};
 
 async function scrapRA(url) {
     const browser = await pupeteer.launch()
