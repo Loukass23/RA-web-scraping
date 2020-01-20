@@ -1,13 +1,23 @@
 const pupeteer = require('puppeteer')
+const express = require('express');
+const fs = require('fs');
 
-scrapGitHub("https://www.residentadvisor.net/events/de/berlin")
+const app = express();
+
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+    console.log(`Express server running on port ${port}`)
+});
+const countryCode = 'fr'
+const city = 'paris'
+scrapGitHub(`https://www.residentadvisor.net/events/${countryCode}/${city}`)
 
 async function scrapGitHub(url) {
     const browser = await pupeteer.launch()
     const page = await browser.newPage()
     await page.goto(url, { waitUntil: 'networkidle2' })
 
-    const ul = await page.$eval('#items', ul =>
+    const events = await page.$eval('#items', ul =>
 
         Array.from(ul.querySelectorAll('li'), li => {
             let date = li.querySelector('.event-item>span>time')
@@ -17,25 +27,33 @@ async function scrapGitHub(url) {
             if (event) event = event.innerHTML
             let club = li.querySelector('.event-title>span>a')
             if (club) club = club.innerHTML
+            let artists = li.querySelector('.bbox>div')
+            if (artists) artists = artists.innerHTML.split(', ')
             console.log('club :', club);
-            if (event && club) return { date, event, club }
+            if (event) return { date, event, artists, club }
         }).filter(e => e != null)
 
     )
 
-    console.log('ul :', ul);
+    // writeJson(events)
+
+    app.get('/',
+        (req, res) =>
+
+            res.send({ countryCode, city, events })
+    )
 
 
+}
 
-    // const li = Array.from(ul.querySelectorAll('li').some(li => console.log('li', li)))
-    //console.log('li :', li);
+function writeJson(jsonObj) {
+    var jsonContent = JSON.stringify(jsonObj);
+    fs.writeFile("output.json", jsonContent, 'utf8', function (err) {
+        if (err) {
+            console.log("An error occured while writing JSON Object to File.");
+            return console.log(err);
+        }
 
-
-    //const [el] = await page.$x('/html/body/form/main/ul/li[2]/div[2]/div/div[2]/ul')
-    // const [el] = await page.$x('/html/body/form/main/ul/li[2]/div[2]/div/div[2]/ul/li[2]/article/div/h1/a')
-    //console.log('el :', el);
-    //const src = await el.getProperty('src')
-    // console.log('src :', src);
-    //const srcTxt = src.jsonValue()
-    // console.log('srcTxt :', srcTxt);
+        console.log("JSON file has been saved.");
+    });
 }
