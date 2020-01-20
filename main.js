@@ -1,18 +1,32 @@
 const pupeteer = require('puppeteer')
 const express = require('express');
 const fs = require('fs');
+const bodyParser = require("body-parser");
+
 
 const app = express();
+app.use(
+    bodyParser.urlencoded({
+        extended: true
+    })
+);
+app.use(bodyParser.json());
+
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log(`Express server running on port ${port}`)
 });
-const countryCode = 'fr'
-const city = 'paris'
-scrapGitHub(`https://www.residentadvisor.net/events/${countryCode}/${city}`)
 
-async function scrapGitHub(url) {
+app.post('/events',
+    async (req, res) => {
+        const { countryCode, city } = req.body
+        const events = await scrapRA(`https://www.residentadvisor.net/events/${countryCode}/${city}`)
+        res.send(events)
+
+    });
+
+async function scrapRA(url) {
     const browser = await pupeteer.launch()
     const page = await browser.newPage()
     await page.goto(url, { waitUntil: 'networkidle2' })
@@ -22,14 +36,12 @@ async function scrapGitHub(url) {
         Array.from(ul.querySelectorAll('li'), li => {
             let date = li.querySelector('.event-item>span>time')
             if (date) date = date.innerHTML
-            console.log('date :', date);
             let event = li.querySelector('.event-title>a')
             if (event) event = event.innerHTML
             let club = li.querySelector('.event-title>span>a')
             if (club) club = club.innerHTML
             let artists = li.querySelector('.bbox>div')
             if (artists) artists = artists.innerHTML.split(', ')
-            console.log('club :', club);
             if (event) return { date, event, artists, club }
         }).filter(e => e != null)
 
@@ -37,12 +49,7 @@ async function scrapGitHub(url) {
 
     // writeJson(events)
 
-    app.get('/',
-        (req, res) =>
-
-            res.send({ countryCode, city, events })
-    )
-
+    return events
 
 }
 
