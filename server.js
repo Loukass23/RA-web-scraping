@@ -18,15 +18,18 @@ app.listen(port, () => {
     console.log(`Express server running on port ${port}`)
 });
 app.post('/events',
-    async (req, res) => {
+    (req, res) => {
         const { countryCode, city } = req.body
-        const events = await scrapRA(`https://www.residentadvisor.net/events/${countryCode}/${city}`)
         if (events.error) res.send(events.error)
-        try {
-            res.send(events)
-        } catch (error) {
-            res.json({ "fuckingHell": error })
-        }
+
+        scrapRA(`https://www.residentadvisor.net/events/${countryCode}/${city}`).then(events => {
+            try {
+                res.send(events)
+            } catch (error) {
+                res.json({ "fuckingHell": error })
+            }
+        })
+
     })
 
 async function scrapRA(url) {
