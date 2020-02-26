@@ -12,25 +12,32 @@ app.use(
 );
 app.use(bodyParser.json());
 
+var events
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log(`Express server running on port ${port}`)
 });
 app.post('/events',
-    (req, res) => {
+    async (req, res) => {
         const { countryCode, city } = req.body
-        if (events.error) res.send(events.error)
+        events = await scrapRA(`https://www.residentadvisor.net/events/${countryCode}/${city}`)
 
-        scrapRA(`https://www.residentadvisor.net/events/${countryCode}/${city}`).then(events => {
-            try {
-                res.send(events)
-            } catch (error) {
-                res.json({ "fuckingHell": error })
-            }
-        })
-
+        console.log('events :', events);
+        res.json({ "msg": "Events are here" })
+        // try {
+        // res.send('ok')
+        // } catch (error) {
+        //     res.send(error)
+        // }
     })
+app.get('/events', (req, res) => {
+    try {
+        res.send(events)
+    } catch (error) {
+        res.send(error)
+    }
+})
 
 async function scrapRA(url) {
     try {
@@ -59,7 +66,7 @@ async function scrapRA(url) {
         return events
     }
     catch (err) {
-        return { error: err }
+        return err
     }
 
 }
