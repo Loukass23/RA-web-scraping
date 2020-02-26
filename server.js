@@ -30,29 +30,34 @@ app.post('/events',
     })
 
 async function scrapRA(url) {
-    const browser = await pupeteer.launch()
-    const page = await browser.newPage()
-    await page.goto(url, { waitUntil: 'networkidle2' })
+    try {
+        const browser = await pupeteer.launch()
+        const page = await browser.newPage()
+        await page.goto(url, { waitUntil: 'networkidle2' })
 
-    const events = await page.$eval('#items', ul =>
+        const events = await page.$eval('#items', ul =>
 
-        Array.from(ul.querySelectorAll('li'), li => {
-            let date = li.querySelector('.event-item>span>time')
-            if (date) date = date.innerHTML
-            let event = li.querySelector('.event-title>a')
-            if (event) event = event.innerHTML
-            let club = li.querySelector('.event-title>span>a')
-            if (club) club = club.innerHTML
-            let artists = li.querySelector('.bbox>div')
-            if (artists) artists = artists.innerHTML.split(', ')
-            if (event) return { date, event, artists, club }
-        }).filter(e => e != null)
+            Array.from(ul.querySelectorAll('li'), li => {
+                let date = li.querySelector('.event-item>span>time')
+                if (date) date = date.innerHTML
+                let event = li.querySelector('.event-title>a')
+                if (event) event = event.innerHTML
+                let club = li.querySelector('.event-title>span>a')
+                if (club) club = club.innerHTML
+                let artists = li.querySelector('.bbox>div')
+                if (artists) artists = artists.innerHTML.split(', ')
+                if (event) return { date, event, artists, club }
+            }).filter(e => e != null)
 
-    )
+        )
 
-    // writeJson(events)
+        // writeJson(events)
 
-    return events
+        return events
+    }
+    catch (err) {
+        return err
+    }
 
 }
 
