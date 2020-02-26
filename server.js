@@ -2,7 +2,6 @@ const pupeteer = require('puppeteer')
 const express = require('express');
 const fs = require('fs');
 const bodyParser = require("body-parser");
-var eventsJson = require("./events.json"); // path of your json file
 
 
 
@@ -26,17 +25,21 @@ app.post('/events',
         events = await scrapRA(`https://www.residentadvisor.net/events/${countryCode}/${city}`)
 
         console.log('events :', events);
-        res.json({ "msg": "Events are here" })
-        // try {
-        // res.send('ok')
-        // } catch (error) {
-        //     res.send(error)
-        // }
+        // writeJson(events, city)
+        // res.json({ "msg": "Events are here" })
+        try {
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(events));
+        } catch (error) {
+            res.send(error)
+        }
     })
+
+
 app.get('/events', (req, res) => {
     try {
         // res.send(events)
-        res.json(eventsJson)
+        res.json(require("./events.json"))
     } catch (error) {
         res.send(error)
     }
@@ -63,7 +66,7 @@ async function scrapRA(url) {
             }).filter(e => e != null)
 
         )
-        writeJson(events)
+
         // writeJson(events)
 
         return events
@@ -74,9 +77,9 @@ async function scrapRA(url) {
 
 }
 
-function writeJson(jsonObj) {
+function writeJson(jsonObj, city) {
     var jsonContent = JSON.stringify(jsonObj);
-    fs.writeFile("events.json", jsonContent, 'utf8', function (err) {
+    fs.writeFile(`events.json`, jsonContent, 'utf8', function (err) {
         if (err) {
             console.log("An error occured while writing JSON Object to File.");
             return console.log(err);
