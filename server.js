@@ -27,8 +27,6 @@ app.post('/events',
         } catch (error) {
             res.send(error)
         }
-
-
     })
 
 async function scrapRA(url) {
