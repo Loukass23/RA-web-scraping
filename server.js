@@ -2,6 +2,8 @@ const pupeteer = require('puppeteer')
 const express = require('express');
 const fs = require('fs');
 const bodyParser = require("body-parser");
+var eventsJson = require("./events.json"); // path of your json file
+
 
 
 const app = express();
@@ -33,7 +35,8 @@ app.post('/events',
     })
 app.get('/events', (req, res) => {
     try {
-        res.send(events)
+        // res.send(events)
+        res.json(eventsJson)
     } catch (error) {
         res.send(error)
     }
@@ -60,7 +63,7 @@ async function scrapRA(url) {
             }).filter(e => e != null)
 
         )
-
+        writeJson(events)
         // writeJson(events)
 
         return events
@@ -73,7 +76,7 @@ async function scrapRA(url) {
 
 function writeJson(jsonObj) {
     var jsonContent = JSON.stringify(jsonObj);
-    fs.writeFile("output.json", jsonContent, 'utf8', function (err) {
+    fs.writeFile("events.json", jsonContent, 'utf8', function (err) {
         if (err) {
             console.log("An error occured while writing JSON Object to File.");
             return console.log(err);
