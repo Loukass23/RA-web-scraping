@@ -47,7 +47,7 @@ app.get('/events', (req, res) => {
 
 async function scrapRA(url) {
     try {
-        const browser = await pupeteer.launch()
+        const browser = await pupeteer.launch({ args: ['--no-sandbox'] })
         const page = await browser.newPage()
         await page.goto(url, { waitUntil: 'networkidle2' })
 
