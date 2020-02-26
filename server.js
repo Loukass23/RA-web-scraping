@@ -21,11 +21,11 @@ app.post('/events',
     async (req, res) => {
         const { countryCode, city } = req.body
         const events = await scrapRA(`https://www.residentadvisor.net/events/${countryCode}/${city}`)
-
+        if (events.error) res.send(events.error)
         try {
             res.send(events)
         } catch (error) {
-            res.send(error)
+            res.json({ "fuckingHell": error })
         }
     })
 
@@ -56,7 +56,7 @@ async function scrapRA(url) {
         return events
     }
     catch (err) {
-        return err
+        return { error: err }
     }
 
 }
